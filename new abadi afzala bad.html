@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Abadi Afzal Abad - Kot Radha Kishan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDK Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
+        
+        body { 
+            background: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)), url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=1920&auto=format&fit=crop') no-repeat center center fixed; 
+            background-size: cover; 
+            color: #333; 
+            padding: 20px; 
+            min-height: 100vh; 
+        }
+
+        .app-header { 
+            text-align: center; margin-bottom: 20px; background: linear-gradient(135deg, #1e3c72, #2a5298); 
+            color: white; padding: 20px; border-radius: 12px; box-shadow: 0 6px 15px rgba(0,0,0,0.3); 
+        }
+        .app-header h1 { font-size: 24px; font-weight: bold; color: #f1c40f; text-shadow: 2px 2px 4px rgba(0,0,0,0.4); }
+        .app-header p { font-size: 13px; color: #ecf0f1; margin-top: 5px; font-weight: 600; letter-spacing: 0.5px; }
+
+        .login-container { 
+            max-width: 420px; margin: 40px auto; background: rgba(255, 255, 255, 0.96); 
+            padding: 30px; border-radius: 18px; box-shadow: 0 15px 35px rgba(0,0,0,0.4); 
+            text-align: center; border: 2px solid #d4ac0d;
+        }
+        
+        .login-logo-box {
+            width: 80px; height: 80px; background: linear-gradient(135deg, #d4ac0d, #b7950b);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 12px auto; box-shadow: 0 5px 15px rgba(212, 172, 13, 0.5);
+            border: 3px solid white; font-size: 35px;
+        }
+
+        .login-container h2 { color: #1e3c72; margin-bottom: 5px; font-size: 20px; font-weight: bold; }
+        .login-subtext { color: #b7950b; font-size: 12px; margin-bottom: 18px; font-weight: 700; }
+        
+        .container { max-width: 1050px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+        
+        .top-menu-bar { display: flex; justify-content: space-between; align-items: center; background: #2c3e50; padding: 10px 18px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 3px 8px rgba(0,0,0,0.1); }
+        
+        .menu-container { position: relative; display: inline-block; }
+        .three-dots-btn { background: #16a085; color: white; border: none; padding: 6px 14px; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; }
+        .three-dots-btn:hover { background: #1abc9c; }
+
+        .dropdown-menu {
+            display: none; position: absolute; left: 0; top: 40px; background-color: #fff; 
+            min-width: 250px; box-shadow: 0px 8px 20px rgba(0,0,0,0.2); border-radius: 8px; z-index: 100; overflow: hidden; border: 1px solid #ddd;
+        }
+        .dropdown-menu button {
+            background: none; color: #333; border: none; padding: 10px 15px; text-align: left; width: 100%; font-size: 12px; font-weight: bold; cursor: pointer; border-bottom: 1px solid #f1f1f1; transition: 0.2s;
+        }
+        .dropdown-menu button:hover { background-color: #f8f9fa; color: #16a085; padding-left: 18px; }
+
+        .photo-section {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: #f8f9fa; border: 2px dashed #cbd5e1; border-radius: 10px; padding: 8px; text-align: center;
+            height: 100%; min-height: 100px;
+        }
+        .photo-preview {
+            width: 48px; height: 60px; border: 2px solid #1e3c72; border-radius: 4px; object-fit: cover;
+            background: #e2e8f0; margin-bottom: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .file-input-label {
+            background: #1e3c72; color: white; padding: 3px 6px; border-radius: 4px; font-size: 9px; cursor: pointer; font-weight: bold; transition: 0.2s;
+        }
+        .file-input-label:hover { background: #2a5298; }
+        input[type="file"] { display: none; }
+
+        h3 { color: #1e3c72; margin: 20px 0 12px 0; border-bottom: 2px solid #eef2f5; padding-bottom: 6px; font-size: 15px; }
+        
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+        .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+        .full-width { grid-column: span 2; }
+        
+        label { font-size: 11px; font-weight: bold; color: #444; display: block; margin-bottom: 4px; text-align: left; }
+        input[type="text"], input[type="number"], input[type="date"] { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 6px; font-size: 12px; text-align: left; background: #fafafa; }
+        input:focus { border-color: #16a085; background: #fff; outline: none; box-shadow: 0 0 4px rgba(22, 160, 133, 0.3); }
+        
+        .btn-main { background: #27ae60; color: white; border: none; padding: 10px 15px; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 8px; transition: 0.3s; box-shadow: 0 3px 8px rgba(39, 174, 96, 0.2); }
+        .btn-main:hover { background: #219653; }
+        
+        .summary-box { background: linear-gradient(135deg, #e8f8f5, #d1f2eb); border: 1px solid #a3e4d7; padding: 12px; border-radius: 8px; margin-bottom: 15px; display: flex; justify-content: space-around; text-align: center; flex-wrap: wrap; gap: 10px; }
+        .summary-item span { display: block; font-size: 11px; color: #555; font-weight: bold; }
+        .summary-item strong { font-size: 15px; color: #1e3c72; margin-top: 3px; display: block; }
+        
+        .table-container { margin-top: 15px; overflow-x: auto; border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; background: #fff; }
+        th, td { border: 1px solid #e1e8ed; padding: 8px; text-align: center; font-size: 12px; }
+        th { background-color: #1e3c72; color: white; font-weight: 600; }
+        tr:nth-child(even) { background-color: #f8f9fa; }
+        
+        .btn-delete { background: #e74c3c; padding: 4px 8px; font-size: 10px; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-delete:hover { background: #c0392b; }
+        
+        .error { color: #e74c3c; font-size: 12px; margin-top: 10px; font-weight: bold; }
+        .hidden { display: none !important; }
+        
+        .customizer-box { background: #fcf3cf; border: 1px dashed #f1c40f; padding: 12px; border-radius: 8px; margin-bottom: 15px; display: none; }
+    </style>
+</head>
+<body>
+
+<!-- Admin Login Screen -->
+<div id="loginBox" class="login-container">
+    <div class="login-logo-box">🏠</div>
+    <h2>New Abadi Afzal Abad</h2>
+    <p class="login-subtext">Kot Radha Kishan Housing Scheme</p>
+    
+    <label>Admin Username</label>
+    <input type="text" id="loginUser" placeholder="Enter username" value="">
+    
+    <label style="margin-top: 10px;">Admin Password (CNIC)</label>
+    <input type="text" id="loginPass" placeholder="Enter password" value="">
+    
+    <button class="btn-main" onclick="handleAdminLogin()">Admin Login</button>
+    <button class="btn-main" style="background: #2980b9; margin-top: 8px;" onclick="showCustomerPortalLogin()">👤 Customer Self Portal</button>
+    <div class="error" id="loginError"></div>
+</div>
+
+<!-- Customer Login Screen -->
+<div id="customerLoginBox" class="login-container hidden">
+    <div class="login-logo-box" style="background: linear-gradient(135deg, #27ae60, #219653);">👤</div>
+    <h2>Customer Verification Portal</h2>
+    <p class="login-subtext">Kot Radha Kishan Housing Scheme</p>
+    
+    <label>Your Full Name</label>
+    <input type="text" id="portalCustName" placeholder="Enter your exact name" value="">
+    
+    <label style="margin-top: 10px;">Your CNIC / File Number</label>
+    <input type="text" id="portalCustId" placeholder="e.g. 35102-0000000-1" value="">
+    
+    <button class="btn-main" style="background: #27ae60;" onclick="verifyCustomerAccess()">View My File Data</button>
+    <button class="btn-main" style="background: #7f8c8d; margin-top: 8px;" onclick="backToMainLogin()">Back to Login</button>
+    <div class="error" id="portalError"></div>
+</div>
+
+<!-- Admin Dashboard -->
+<div id="dashBox" class="container hidden">
+    <div class="app-header">
+        <h1>New Abadi Afzal Abad</h1>
+        <p>Kot Radha Kishan Housing Scheme</p>
+    </div>
+
+    <div class="top-menu-bar">
+        <div class="menu-container">
+            <button class="three-dots-btn" onclick="toggleMenu()">⋮ Menu</button>
+            <div id="dropdownMenu" class="dropdown-menu">
+                <button onclick="openSavedFilesModal()">📁 Saved Files List (<span id="savedCount">0</span>)</button>
+                <button onclick="toggleCustomizerPanel()">⚙️ Layout & Fields Customizer</button>
+                <button onclick="printOrSavePDF()">🖨️ Print / Save PDF Report</button>
+                <button onclick="sendEmailReport()">📧 Send Report via Gmail</button>
+                <button onclick="handleLogout()" style="color: #e74c3c;">🚪 Logout</button>
+            </div>
+        </div>
+        <div style="color: white; font-weight: bold; font-size: 13px;">Welcome to Abdul Aziz (Cloud Live)</div>
+    </div>
+
+    <div id="customizerPanel" class="customizer-box">
+        <h4 style="color: #b7950b; margin-bottom: 8px; font-size: 13px;">🛠️ Layout & Field Customizer (آٹو سنک فیلڈز)</h4>
+        <p style="font-size: 11px; color: #555; margin-bottom: 8px;">یہاں جو بھی نیا خانہ ایڈ کریں گے، وہ کسٹمر کے پورٹل میں بھی خود بخود شو ہو جائے گا:</p>
+        <div style="display: flex; gap: 8px;">
+            <input type="text" id="newFieldName" placeholder="Enter new field name (e.g. Witness Name)" style="flex: 1;">
+            <button class="btn-main" style="margin-top: 0; width: auto; padding: 6px 12px; background: #d4ac0d;" onclick="addNewCustomField()">+ Add Field</button>
+        </div>
+        <div id="customFieldsContainer" style="margin-top: 10px;"></div>
+    </div>
+
+    <!-- 1. Customer Personal Details -->
+    <h3>1. Customer Personal Details & Photo</h3>
+    <div class="form-grid">
+        <div>
+            <label>Customer Name</label>
+            <input type="text" id="custName" placeholder="Enter full name">
+        </div>
+        <div>
+            <label>Father's / Husband's Name</label>
+            <input type="text" id="custFather" placeholder="Enter father's or husband's name">
+        </div>
+
+        <div>
+            <label>Customer CNIC Number</label>
+            <input type="text" id="custCnic" placeholder="35102-2795108-1">
+        </div>
+        
+        <div style="grid-row: span 2;">
+            <label>Customer Photo</label>
+            <div class="photo-section">
+                <img id="photoPreview" class="photo-preview" src="" alt="Photo" style="display:none;">
+                <div id="noPhotoText" style="font-size: 9px; color: #666; margin-bottom: 2px;">No image</div>
+                <label class="file-input-label">
+                    📁 Upload
+                    <input type="file" id="custPhotoFile" accept="image/*" onchange="previewCustomerPhoto(event)">
+                </label>
+            </div>
+        </div>
+
+        <div>
+            <label>Address</label>
+            <input type="text" id="custAddress" placeholder="Enter complete address">
+        </div>
+
+        <div>
+            <label>Phone Number 1</label>
+            <input type="text" id="phone1" placeholder="0300-1234567">
+        </div>
+        <div>
+            <label>Phone Number 2</label>
+            <input type="text" id="phone2" placeholder="0300-7654321">
+        </div>
+    </div>
+
+    <div id="dynamicFieldsArea" class="form-grid"></div>
+
+    <!-- 2. Plot Pricing -->
+    <h3>2. Plot / File Number, Rate & Pricing Calculation</h3>
+    <div class="form-grid-3">
+        <div>
+            <label>Plot / File Number</label>
+            <input type="text" id="plotNo" placeholder="Plot 12, Block A">
+        </div>
+        <div>
+            <label>Area (Marla / Sq.Ft)</label>
+            <input type="text" id="plotArea" placeholder="e.g. 5 Marla">
+        </div>
+        <div>
+            <label>Rate Per Marla (PKR)</label>
+            <input type="number" id="ratePerMarla" placeholder="0" oninput="calculatePlotAmount()">
+        </div>
+    </div>
+
+    <div class="form-grid">
+        <div>
+            <label>Extra / Corner Charges (PKR)</label>
+            <input type="number" id="extraCharges" value="25000" placeholder="0" oninput="calculatePlotAmount()">
+        </div>
+        <div>
+            <label>Advance Payment (PKR)</label>
+            <input type="number" id="advancePaid" placeholder="0" oninput="calculatePlotAmount()">
+        </div>
+    </div>
+
+    <div class="summary-box">
+        <div class="summary-item"><span>Total Plot Price</span><strong id="lblTotalPrice">0</strong></div>
+        <div class="summary-item"><span>Advance Paid</span><strong id="lblAdvanceShow" style="color: #2980b9;">0</strong></div>
+        <div class="summary-item"><span>Total Paid Amount</span><strong id="lblTotalPaid" style="color: #27ae60;">0</strong></div>
+        <div class="summary-item"><span>Remaining Balance</span><strong id="lblRemaining" style="color: #e74c3c;">0</strong></div>
+    </div>
+
+    <!-- 3. Dealer Details -->
+    <h3>3. Dealer Details & Commission Ledger</h3>
+    <div class="form-grid">
+        <div>
+            <label>Dealer Name</label>
+            <input type="text" id="dealerName" placeholder="Enter dealer name">
+            <label style="margin-top: 8px;">Dealer Phone 1</label>
+            <input type="text" id="dealerPhone1" placeholder="0300-1111111">
+            <label style="margin-top: 8px;">Area Provided by Dealer (Marla)</label>
+            <input type="number" id="dealerAreaMarla" placeholder="0" oninput="calculateDealerCommission()">
+        </div>
+        <div>
+            <label>Dealer Address</label>
+            <input type="text" id="dealerAddress" placeholder="Enter dealer address">
+            <label style="margin-top: 8px;">Dealer Phone 2</label>
+            <input type="text" id="dealerPhone2" placeholder="0300-2222222">
+            <label style="margin-top: 8px;">Commission Rate Per Marla (PKR)</label>
+            <input type="number" id="dealerCommPerMarla" placeholder="0" oninput="calculateDealerCommission()">
+        </div>
+    </div>
+    <div class="form-grid">
+        <div>
+            <label>Dealer Total Commission Calculated (PKR)</label>
+            <input type="text" id="dealerTotalComm" readonly style="background: #e9ecef; font-weight: bold;" value="0">
+        </div>
+        <div>
+            <label>Dealer Received Amount (PKR)</label>
+            <input type="number" id="dealerRecAmount" placeholder="0" oninput="calculateDealerBalance()">
+        </div>
+    </div>
+    <div style="background: #fdf2e9; border: 1px solid #f5b041; padding: 10px; border-radius: 6px; margin-bottom: 15px; text-align: center;">
+        <span style="font-size: 12px; font-weight: bold; color: #d35400;">Dealer Remaining Balance: <strong id="lblDealerRemaining" style="font-size: 15px;">0</strong> PKR</span>
+    </div>
+
+    <!-- 4. Installments Entry -->
+    <h3>4. Installments Entry</h3>
+    <div style="background: #f8f9fa; padding: 12px; border-radius: 8px; border: 1px solid #e1e8ed;">
+        <div style="display: grid; grid-template-columns: 1.2fr 1.2fr 0.8fr; gap: 10px; align-items: flex-end; margin-bottom: 10px;">
+            <div>
+                <label>Installment Date</label>
+                <input type="date" id="kistDate">
+            </div>
+            <div>
+                <label>Installment Amount (PKR)</label>
+                <input type="number" id="kistAmount" placeholder="Amount">
+            </div>
+            <div>
+                <label>Receipt No.</label>
+                <input type="text" id="kistReceipt" placeholder="REC-1">
+            </div>
+        </div>
+        <button class="btn-main" type="button" onclick="addInstallment()">Add Installment to Record</button>
+    </div>
+
+    <button class="btn-main" type="button" style="background: #2980b9; margin-top: 15px;" onclick="saveCompleteRecord()">💾 Save Complete File to Cloud Database</button>
+
+    <div class="table-container">
+        <h3>Current Installments History</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>S.No</th><th>Date</th><th>Amount</th><th>Receipt No.</th><th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="installmentTableBody">
+                <tr><td colspan="5" style="color: #777; font-style: italic;">No installments added yet.</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Customer Dashboard -->
+<div id="customerPortalDashboard" class="container hidden" style="background: #fdfefe;">
+    <div class="app-header" style="background: linear-gradient(135deg, #27ae60, #219653);">
+        <h1>New Abadi Afzal Abad</h1>
+        <p>Kot Radha Kishan Housing Scheme - Live Cloud Verified View</p>
+    </div>
+
+    <div style="display: flex; gap: 15px; align-items: flex-start; flex-wrap: wrap; background: #fff; padding: 15px; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.05); margin-bottom: 15px;">
+        <div style="text-align: center;">
+            <img id="portalViewPhoto" class="photo-preview" src="" alt="Customer Photo" style="display:block; width: 55px; height: 70px;">
+        </div>
+        <div id="portalDetailsGrid" style="flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px;">
+            <div><strong>Customer Name:</strong> <span id="pName">-</span></div>
+            <div><strong>Father/Husband Name:</strong> <span id="pFather">-</span></div>
+            <div><strong>CNIC / ID:</strong> <span id="pCnic">-</span></div>
+            <div><strong>Plot / File No:</strong> <span id="pPlot">-</span></div>
+            <div><strong>Area:</strong> <span id="pArea">-</span></div>
+            <div><strong>Phone 1:</strong> <span id="pPhone1">-</span></div>
+            <div><strong>Phone 2:</strong> <span id="pPhone2">-</span></div>
+            <div class="full-width"><strong>Address:</strong> <span id="pAddress">-</span></div>
+        </div>
+    </div>
+
+    <div id="portalDynamicFieldsArea" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px; margin-bottom: 15px; background: #f8f9fa; padding: 10px; border-radius: 8px;"></div>
+
+    <div class="summary-box">
+        <div class="summary-item"><span>Total Plot Price</span><strong id="pTotalPrice">0</strong></div>
+        <div class="summary-item"><span>Total Paid Amount</span><strong id="pTotalPaid" style="color: #27ae60;">0</strong></div>
+        <div class="summary-item"><span>Remaining Balance</span><strong id="pRemaining" style="color: #e74c3c;">0</strong></div>
+    </div>
+
+    <div class="table-container">
+        <h3>Your Installments Payment History</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>S.No</th><th>Date</th><th>Amount Paid</th><th>Receipt No.</th>
+                </tr>
+            </thead>
+            <tbody id="portalInstallmentTable">
+                <tr><td colspan="4">No record found.</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <button class="btn-main" style="background: #e74c3c; margin-top: 20px; width: auto; padding: 8px 20px;" onclick="backToMainLogin()">🔒 Logout / Exit Portal</button>
+</div>
+
+<script>
+    // --- FIREBASE CONFIGURATION SETUP ---
+    // (یہاں آپ اپنی فیر بیس کی مفت آئی ڈی لگا سکتے ہیں، فی الحال ڈیفالٹ ٹیسٹ لنک لگا ہے)
+    const firebaseConfig = {
+        databaseURL: "https://housing-society-default-rtdb.firebaseio.com/"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    let installments = [];
+    let customFieldsList = [];
+    let savedRecords = [];
+    let currentPhotoBase64 = "";
+    document.getElementById('kistDate').valueAsDate = new Date();
+
+    // ڈیٹا بیس سے لائیو ڈیٹا سنک کرنا
+    db.ref('societyData/customFields').on('value', (snapshot) => {
+        customFieldsList = snapshot.val() || [];
+        renderCustomFields();
+    });
+
+    db.ref('societyData/files').on('value', (snapshot) => {
+        let data = snapshot.val();
+        savedRecords = data ? Object.values(data) : [];
+        updateSavedCount();
+    });
+
+    function handleAdminLogin() {
+        let user = document.getElementById('loginUser').value.trim();
+        let pass = document.getElementById('loginPass').value.trim();
+        if (user === "Abdul Aziz" && pass === "35102-2795108-1") {
+            document.getElementById('loginBox').classList.add('hidden');
+            document.getElementById('dashBox').classList.remove('hidden');
+            document.body.style.background = "linear-gradient(135deg, #f5f7fa, #c3cfe2)";
+        } else {
+            document.getElementById('loginError').innerText = "Invalid Admin Username or Password!";
+        }
+    }
+
+    function showCustomerPortalLogin() {
+        document.getElementById('loginBox').classList.add('hidden');
+        document.getElementById('customerLoginBox').classList.remove('hidden');
+    }
+
+    function backToMainLogin() {
+        document.getElementById('loginUser').value = "";
+        document.getElementById('loginPass').value = "";
+        document.getElementById('portalCustName').value = "";
+        document.getElementById('portalCustId').value = "";
+        document.getElementById('loginError').innerText = "";
+        document.getElementById('portalError').innerText = "";
+
+        document.getElementById('customerLoginBox').classList.add('hidden');
+        document.getElementById('dashBox').classList.add('hidden');
+        document.getElementById('customerPortalDashboard').classList.add('hidden');
+        document.getElementById('loginBox').classList.remove('hidden');
+        document.body.style.background = "linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)), url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=1920&auto=format&fit=crop') no-repeat center center fixed";
+        document.body.style.backgroundSize = "cover";
+    }
+
+    function verifyCustomerAccess() {
+        let nameInput = document.getElementById('portalCustName').value.trim().toLowerCase();
+        let idInput = document.getElementById('portalCustId').value.trim();
+        let errorBox = document.getElementById('portalError');
+
+        if (!nameInput || !idInput) {
+            errorBox.innerText = "Please enter both Name and CNIC/File Number!";
+            return;
+        }
+
+        let foundRecord = savedRecords.find(r => 
+            r.name.toLowerCase() === nameInput && (r.cnic === idInput || r.plot.toLowerCase() === idInput.toLowerCase())
+        );
+
+        if (!foundRecord) {
+            errorBox.innerText = "No file found matching this Name and ID! Please check details.";
+            return;
+        }
+
+        document.getElementById('customerLoginBox').classList.add('hidden');
+        document.getElementById('customerPortalDashboard').classList.remove('hidden');
+
+        document.getElementById('pName').innerText = foundRecord.name;
+        document.getElementById('pFather').innerText = foundRecord.father || "-";
+        document.getElementById('pCnic').innerText = foundRecord.cnic || "-";
+        document.getElementById('pPlot').innerText = foundRecord.plot;
+        document.getElementById('pArea').innerText = foundRecord.plotArea || "-";
+        document.getElementById('pPhone1').innerText = foundRecord.phone1 || "-";
+        document.getElementById('pPhone2').innerText = foundRecord.phone2 || "-";
+        document.getElementById('pAddress').innerText = foundRecord.address || "-";
+
+        let portalDynArea = document.getElementById('portalDynamicFieldsArea');
+        portalDynArea.innerHTML = "";
+        if(foundRecord.customFields) {
+            for (let key in foundRecord.customFields) {
+                portalDynArea.innerHTML += `<div><strong>${key}:</strong> <span>${foundRecord.customFields[key] || '-'}</span></div>`;
+            }
+        }
+
+        if(foundRecord.photo) {
+            document.getElementById('portalViewPhoto').src = foundRecord.photo;
+            document.getElementById('portalViewPhoto').style.display = "block";
+        } else {
+            document.getElementById('portalViewPhoto').style.display = "none";
+        }
+
+        let totalKist = foundRecord.installments ? foundRecord.installments.reduce((sum, i) => sum + i.amount, 0) : 0;
+        let totalPaid = parseFloat(foundRecord.advancePaid || 0) + totalKist;
+        let remaining = parseFloat(foundRecord.totalPrice || 0) - totalPaid;
+
+        document.getElementById('pTotalPrice').innerText = Number(foundRecord.totalPrice || 0).toLocaleString();
+        document.getElementById('pTotalPaid').innerText = totalPaid.toLocaleString();
+        document.getElementById('pRemaining').innerText = remaining.toLocaleString();
+
+        let tbody = document.getElementById('portalInstallmentTable');
+        tbody.innerHTML = "";
+        if(!foundRecord.installments || foundRecord.installments.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" style="color: #777;">No installments recorded yet.</td></tr>`;
+        } else {
+            foundRecord.installments.forEach((item, idx) => {
+                tbody.innerHTML += `<tr>
+                    <td>${idx + 1}</td>
+                    <td>${item.date}</td>
+                    <td style="color: #27ae60; font-weight: bold;">PKR ${item.amount.toLocaleString()}</td>
+                    <td>${item.receipt}</td>
+                </tr>`;
+            });
+        }
+    }
+
+    function toggleCustomizerPanel() {
+        let panel = document.getElementById('customizerPanel');
+        panel.style.display = (panel.style.display === 'block') ? 'none' : 'block';
+        document.getElementById('dropdownMenu').style.display = 'none';
+    }
+
+    function addNewCustomField() {
+        let fieldName = document.getElementById('newFieldName').value.trim();
+        if(!fieldName) { alert("Please enter field name!"); return; }
+        customFieldsList.push(fieldName);
+        db.ref('societyData/customFields').set(customFieldsList);
+        document.getElementById('newFieldName').value = "";
+    }
+
+    function renderCustomFields() {
+        let area = document.getElementById('dynamicFieldsArea');
+        let settingsArea = document.getElementById('customFieldsContainer');
+        if(!area) return;
+        area.innerHTML = "";
+        settingsArea.innerHTML = "";
+
+        customFieldsList.forEach((f, idx) => {
+            area.innerHTML += `<div>
+                <label>${f}</label>
+                <input type="text" id="customField_${idx}" placeholder="Enter ${f}">
+            </div>`;
+            settingsArea.innerHTML += `<div style="display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 4px 8px; margin-top: 4px; border-radius: 4px; font-size: 11px;">
+                <span>${f}</span>
+                <button class="btn-delete" onclick="removeCustomField(${idx})">Delete</button>
+            </div>`;
+        });
+    }
+
+    function removeCustomField(index) {
+        customFieldsList.splice(index, 1);
+        db.ref('societyData/customFields').set(customFieldsList);
+    }
+
+    function previewCustomerPhoto(event) {
+        let reader = new FileReader();
+        reader.onload = function() {
+            currentPhotoBase64 = reader.result;
+            let preview = document.getElementById('photoPreview');
+            preview.src = currentPhotoBase64;
+            preview.style.display = "block";
+            document.getElementById('noPhotoText').style.display = "none";
+        }
+        reader.readAsDataURL(event.target.files[0]);
+    }
+
+    function handleLogout() { backToMainLogin(); }
+    function toggleMenu() {
+        let menu = document.getElementById('dropdownMenu');
+        menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+    }
+
+    function calculatePlotAmount() {
+        let areaVal = parseFloat(document.getElementById('plotArea').value) || 0;
+        let rate = parseFloat(document.getElementById('ratePerMarla').value) || 0;
+        let extra = parseFloat(document.getElementById('extraCharges').value) || 0;
+        let advance = parseFloat(document.getElementById('advancePaid').value) || 0;
+
+        let basePrice = areaVal * rate;
+        let totalPrice = basePrice + extra;
+
+        let totalKistPaid = installments.reduce((sum, item) => sum + item.amount, 0);
+        let totalPaid = advance + totalKistPaid;
+        let remaining = totalPrice - totalPaid;
+
+        document.getElementById('lblTotalPrice').innerText = totalPrice.toLocaleString();
+        document.getElementById('lblAdvanceShow').innerText = advance.toLocaleString();
+        document.getElementById('lblTotalPaid').innerText = totalPaid.toLocaleString();
+        document.getElementById('lblRemaining').innerText = remaining.toLocaleString();
+    }
+
+    function calculateDealerCommission() {
+        let area = parseFloat(document.getElementById('dealerAreaMarla').value) || 0;
+        let commRate = parseFloat(document.getElementById('dealerCommPerMarla').value) || 0;
+        let totalComm = area * commRate;
+        document.getElementById('dealerTotalComm').value = totalComm;
+        calculateDealerBalance();
+    }
+
+    function calculateDealerBalance() {
+        let totalComm = parseFloat(document.getElementById('dealerTotalComm').value) || 0;
+        let recAmount = parseFloat(document.getElementById('dealerRecAmount').value) || 0;
+        let rem = totalComm - recAmount;
+        document.getElementById('lblDealerRemaining').innerText = rem.toLocaleString();
+    }
+
+    function addInstallment() {
+        let date = document.getElementById('kistDate').value;
+        let amount = parseFloat(document.getElementById('kistAmount').value);
+        let receipt = document.getElementById('kistReceipt').value.trim();
+
+        if (!date || !amount || !receipt) {
+            alert("Please fill date, amount and receipt fields!");
+            return;
+        }
+
+        installments.push({ date: date, amount: amount, receipt: receipt });
+        document.getElementById('kistAmount').value = "";
+        document.getElementById('kistReceipt').value = "";
+        renderTable();
+        calculatePlotAmount();
+    }
+
+    function deleteInstallment(index) {
+        installments.splice(index, 1);
+        renderTable();
+        calculatePlotAmount();
+    }
+
+    function renderTable() {
+        let tbody = document.getElementById('installmentTableBody');
+        tbody.innerHTML = "";
+        if (installments.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" style="color: #777; font-style: italic;">No installments added yet.</td></tr>`;
+            return;
+        }
+        installments.forEach((item, index) => {
+            tbody.innerHTML += `<tr>
+                <td>${index + 1}</td>
+                <td>${item.date}</td>
+                <td style="color: #27ae60; font-weight: bold;">PKR ${item.amount.toLocaleString()}</td>
+                <td>${item.receipt}</td>
+                <td><button class="btn-delete" onclick="deleteInstallment(${index})">Delete</button></td>
+            </tr>`;
+        });
+    }
+
+    function saveCompleteRecord() {
+        let custName = document.getElementById('custName').value.trim();
+        let plotNo = document.getElementById('plotNo').value.trim();
+
+        if(!custName || !plotNo) {
+            alert("Customer Name and Plot Number are required!");
+            return;
+        }
+
+        let areaVal = parseFloat(document.getElementById('plotArea').value) || 0;
+        let rate = parseFloat(document.getElementById('ratePerMarla').value) || 0;
+        let extra = parseFloat(document.getElementById('extraCharges').value) || 0;
+        let totalPrice = (areaVal * rate) + extra;
+
+        let customData = {};
+        customFieldsList.forEach((f, idx) => {
+            let val = document.getElementById(`customField_${idx}`) ? document.getElementById(`customField_${idx}`).value : "";
+            customData[f] = val;
+        });
+
+        let recordId = Date.now();
+        let record = {
+            id: recordId,
+            name: custName,
+            father: document.getElementById('custFather').value,
+            address: document.getElementById('custAddress').value,
+            cnic: document.getElementById('custCnic').value,
+            phone1: document.getElementById('phone1').value,
+            phone2: document.getElementById('phone2').value,
+            plot: plotNo,
+            plotArea: document.getElementById('plotArea').value,
+            totalPrice: totalPrice,
+            advancePaid: document.getElementById('advancePaid').value,
+            photo: currentPhotoBase64,
+            customFields: customData,
+            dealer: {
+                name: document.getElementById('dealerName').value,
+                address: document.getElementById('dealerAddress').value,
+                phone1: document.getElementById('dealerPhone1').value,
+                phone2: document.getElementById('dealerPhone2').value,
+                totalComm: document.getElementById('dealerTotalComm').value,
+                recAmount: document.getElementById('dealerRecAddress') ? document.getElementById('dealerRecAddress').value : ""
+            },
+            installments: [...installments]
+        };
+
+        // ڈیٹا براہ راست کلاؤڈ ڈیٹا بیس میں محفوظ ہو رہا ہے
+        db.ref('societyData/files/' + recordId).set(record).then(() => {
+            alert("Customer file successfully saved to Cloud Database! Now it is live.");
+        });
+    }
+
+    function updateSavedCount() {
+        let countEl = document.getElementById('savedCount');
+        if(countEl) countEl.innerText = savedRecords.length;
+    }
+
+    function openSavedFilesModal() {
+        document.getElementById('dropdownMenu').style.display = 'none';
+        if(savedRecords.length === 0) { alert("No saved files found."); return; }
+        let msg = "Saved Cloud Files:\n\n";
+        savedRecords.forEach((f, idx) => {
+            msg += `${idx + 1}. Name: ${f.name} | Plot: ${f.plot} | CNIC: ${f.cnic}\n`;
+        });
+        alert(msg);
+    }
+
+    function printOrSavePDF() {
+        document.getElementById('dropdownMenu').style.display = 'none';
+        window.print();
+    }
+
+    function sendEmailReport() {
+        document.getElementById('dropdownMenu').style.display = 'none';
+        let custName = document.getElementById('custName').value.trim() || "Customer";
+        let plotNo = document.getElementById('plotNo').value.trim() || "Plot";
+        let subject = encodeURIComponent("Kot Radha Kishan Housing Scheme: " + custName + " (Plot: " + plotNo + ")");
+        let body = encodeURIComponent("Customer Report for " + custName + "\nPlot No: " + plotNo);
+        window.location.href = "mailto:?subject=" + subject + "&body=" + body;
+    }
+</script>
+
+</body>
+</html>
